@@ -1,0 +1,29 @@
+{
+  "name": "node-gql-chat",
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "author": {
+    "email": "soulsam480@hotmail.com",
+    "name": "soulsam480",
+    "url": "https://sambitsahoo.com"
+  },
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "serve": "nodemon --watch 'src/**/*' --exec 'ts-node' src/index.ts"
+  },
+  "dependencies": {
+    "apollo-server": "^2.19.0",
+    "graphql": "^15.4.0",
+    "reflect-metadata": "^0.1.13",
+    "sqlite3": "^5.0.0",
+    "ts-node": "^9.0.0",
+    "typeorm": "^0.2.29"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.7",
+    "@types/sqlite3": "^3.1.6",
+    "nodemon": "^2.0.6",
+    "typescript": "^4.0.5"
+  }
+}
