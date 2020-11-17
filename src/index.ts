@@ -14,5 +14,9 @@ const server = new ApolloServer({
 createConnection().then(() => {
   server.listen().then(({ url }) => {
     console.log(`🚀 Server ready at ${url}`);
-  });
+  }).catch(err => {
+    console.log(err);
+  })
+}).catch(err => {
+  console.log(err);
 })
