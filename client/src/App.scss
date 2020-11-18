@@ -1,0 +1,32 @@
+@import "~bootstrap/scss/bootstrap";
+
+:root,
+body {
+  min-height: 100vh;
+  background: rgb(251, 218, 239);
+  background: linear-gradient(
+    135deg,
+    rgba(251, 218, 239, 1) 14%,
+    rgba(153, 255, 233, 1) 49%,
+    rgba(254, 227, 255, 1) 88%
+  );
+}
+
+.reg-card {
+  padding: 30px;
+  box-shadow: 0 0 10px 0.5px rgba(182, 182, 182, 0.658);
+  border-radius: 20px;
+  .form-control {
+    border: none;
+    background-color: mix(black, #9cfeea, 10%);
+  }
+}
+
+.error {
+  label {
+    color: red;
+  }
+  .form-control {
+    box-shadow: 0 0 5px 1px rgb(252, 133, 133);
+  }
+}

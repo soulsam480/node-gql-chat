@@ -10,13 +10,14 @@
   "license": "MIT",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "serve": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+    "serve": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts --ignore 'client/**'"
   },
   "dependencies": {
     "apollo-server": "^2.19.0",
     "bcrypt": "^5.0.0",
     "dotenv": "^8.2.0",
     "graphql": "^15.4.0",
+    "jsonwebtoken": "^8.5.1",
     "reflect-metadata": "^0.1.10",
     "sqlite3": "^4.0.3",
     "ts-node": "^9.0.0",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
+    "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^8.0.29",
     "@types/sqlite3": "^3.1.6",
     "nodemon": "^2.0.6",

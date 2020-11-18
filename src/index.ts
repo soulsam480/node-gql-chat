@@ -8,6 +8,7 @@ import "reflect-metadata";
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  context: ctx => ctx
 });
 
 

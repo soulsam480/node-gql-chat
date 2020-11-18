@@ -3,11 +3,26 @@ import { User } from "../entity/User";
 import bcrypt from "bcrypt";
 import { AuthenticationError, UserInputError } from "apollo-server";
 import * as dotenv from "dotenv";
+import jwt from "jsonwebtoken";
+import { Not } from "typeorm";
 dotenv.config()
 
 const resolvers: ResolverMap = {
     Query: {
-        getUsers: async () => await User.find(),
+        getUsers: async (_, __, context) => {
+            let user: any;
+            if (context.req && context.req.headers.authorization) {
+                const token = context.req.headers.authorization.split('Bearer ')[1];
+                console.log(token);
+                user = jwt.verify(token, process.env.TOKEN!, (err: any, res: any) => {
+                    if (err) throw new AuthenticationError("User not Authorized");
+                    return res
+                })
+            }
+
+            return await User.find({ where: { username: Not(user.username) } })
+
+        },
         login: async (_, args) => {
             const { username, password } = args;
             let errors: any = {}
@@ -27,7 +42,18 @@ const resolvers: ResolverMap = {
             if (!isPassword) {
                 throw new AuthenticationError("username or password is incorrect")
             }
-            return user
+
+            const token = jwt.sign({ username: username }, process.env.TOKEN!, {
+                expiresIn: "7d"
+            })
+
+            console.log(token);
+
+            return {
+                ...user,
+                token: token,
+                createdAt: user.createdAt.toISOString()
+            }
         }
     },
     Mutation: {
@@ -44,15 +70,15 @@ const resolvers: ResolverMap = {
             //todo check if user exists
             console.log(User.findOne({ where: { username: username } }));
 
-            if (!User.findOne({ where: { username } })) errors.username = "username taken"
-            if (!User.findOne({ where: { email } })) errors.email = "email taken"
+            if (User.findOne({ where: { username } })) errors.username = "username taken"
+            if (User.findOne({ where: { email } })) errors.email = "email taken"
 
             if (Object.keys(errors).length > 0) {
                 throw new UserInputError("Bad Input", { errors })
             }
 
             //todo hash pass
-            password = await bcrypt.hash(password, 6)
+            password = await bcrypt.hash(password, 10)
             // todo create user and send data
             const createdUser = User.create({ username, email, password });
             const results = User.save(createdUser)
