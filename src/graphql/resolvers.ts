@@ -1,3 +1,4 @@
+import { Message } from './../entity/Message';
 import { ResolverMap } from "src/types/resolverType";
 import { User } from "../entity/User";
 import bcrypt from "bcrypt";
@@ -9,38 +10,30 @@ dotenv.config()
 
 const resolvers: ResolverMap = {
     Query: {
-        getUsers: async (_, __, context) => {
-            let user: any;
-            if (context.req && context.req.headers.authorization) {
-                const token = context.req.headers.authorization.split('Bearer ')[1];
-                console.log(token);
-                user = jwt.verify(token, process.env.TOKEN!, (err: any, res: any) => {
-                    if (err) throw new AuthenticationError("User not Authorized");
-                    return res
-                })
-            }
-
+        getUsers: async (_, __, { user }) => {
+            if (!user) throw new AuthenticationError("User not Authorized")
             return await User.find({ where: { username: Not(user.username) } })
-
         },
         login: async (_, args) => {
             const { username, password } = args;
             let errors: any = {}
 
             // todo send errors
-            if (username.trim() === '') errors.username = "username not empty";
-            if (password.trim() === '') errors.email = "password not empty";
+            if (username.trim() === '') errors.username = "Username not empty";
+            if (password.trim() === '') errors.password = "Password not empty";
             if (Object.keys(errors).length > 0) {
                 throw new UserInputError("Bad Input", { errors })
             }
 
             const user = await User.findOne({ where: { username: username } })
             if (!user) {
-                throw new AuthenticationError("username or password is incorrect")
+                errors.password = "Username or password is incorrect";
+                throw new UserInputError("Username or password is incorrect", { errors })
             }
             const isPassword = await bcrypt.compare(password, user.password);
             if (!isPassword) {
-                throw new AuthenticationError("username or password is incorrect")
+                errors.password = "Username or password is incorrect";
+                throw new UserInputError("Username or password is incorrect", { errors })
             }
 
             const token = jwt.sign({ username: username }, process.env.TOKEN!, {
@@ -62,16 +55,14 @@ const resolvers: ResolverMap = {
             let errors: any = {}
 
             // todo send errors
-            if (email.trim() === '') errors.email = "email not empty"
-            if (password.trim() === '') errors.email = "password not empty"
-            if (username.trim() === '') errors.email = "username not empty"
-            if (confirmPassword.trim() === '') errors.email = "confirmPassword not empty"
+            if (email.trim() === '') errors.email = "Email not empty"
+            if (password.trim() === '') errors.email = "Password not empty"
+            if (username.trim() === '') errors.email = "Username not empty"
+            if (confirmPassword.trim() === '') errors.email = "ConfirmPassword not empty"
             if (confirmPassword !== password) errors.confirmPassword = "Passwords don't match"
             //todo check if user exists
-            console.log(User.findOne({ where: { username: username } }));
-
-            if (User.findOne({ where: { username } })) errors.username = "username taken"
-            if (User.findOne({ where: { email } })) errors.email = "email taken"
+            if (await User.findOne({ where: { username } })) errors.username = "Username taken"
+            if (await User.findOne({ where: { email } })) errors.email = "Email taken"
 
             if (Object.keys(errors).length > 0) {
                 throw new UserInputError("Bad Input", { errors })
@@ -80,9 +71,20 @@ const resolvers: ResolverMap = {
             //todo hash pass
             password = await bcrypt.hash(password, 10)
             // todo create user and send data
-            const createdUser = User.create({ username, email, password });
-            const results = User.save(createdUser)
-            return results
+            const user = await User.create({ username, email, password }).save()
+            return user
+        },
+        sendMessage: async (parent, { to, content }, { user }) => {
+            if (!user) throw new AuthenticationError("User not Authorized")
+            const recipient = await User.findOne({ where: { username: to } })
+            if (!recipient) throw new UserInputError("User not found")
+            if (content.trim() === '') throw new UserInputError("Mesaage is empty")
+
+            const message = await Message.create({ content, from: user.username, to }).save()
+            return {
+                ...message,
+                createdAt: message.createdAt.toISOString()
+            }
         }
     }
 };

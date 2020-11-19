@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { gql, useMutation } from "@apollo/client";
-import "../App.scss";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { Link, useHistory } from "react-router-dom";
 //imports
 
 interface Props {}
@@ -33,6 +33,7 @@ const REGISTER_USER = gql`
 `;
 
 const Register: React.FC<Props> = () => {
+  const route = useHistory();
   const [form, setForm] = useState<RegForm>({
     confirmPassword: "",
     email: "",
@@ -44,7 +45,7 @@ const Register: React.FC<Props> = () => {
   });
   const [registerUser, { loading }] = useMutation(REGISTER_USER, {
     update(_, res) {
-      console.log(res);
+      route.push("/login");
     },
     onError(err) {
       setErrors(err.graphQLErrors[0].extensions!);
@@ -58,7 +59,6 @@ const Register: React.FC<Props> = () => {
   return (
     <Container>
       <div>
-        <br />
         <Row className="d-flex justify-content-center">
           <Col md={7} xs={12} lg={5} className="reg-card">
             <h1 className="text-center">Register</h1>
@@ -120,6 +120,10 @@ const Register: React.FC<Props> = () => {
                 <Button variant="warning" type="submit">
                   Submit
                 </Button>
+                <br />
+                <small>
+                  Already an User ? <Link to="/login">login</Link>
+                </small>
               </div>
             </Form>
           </Col>
