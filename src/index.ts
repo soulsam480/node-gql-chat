@@ -1,6 +1,6 @@
 import { createConnection } from 'typeorm';
 import { ApolloServer } from 'apollo-server';
-import resolvers from "./graphql/resolvers";
+import resolvers from "./graphql/resolvers/index";
 import typeDefs from "./graphql/typedefs";
 import "reflect-metadata";
 import ContextMiddleWare from "./util/ContextMiddleWare"

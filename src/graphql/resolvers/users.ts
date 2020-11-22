@@ -1,6 +1,5 @@
-import { Message } from './../entity/Message';
 import { ResolverMap } from "src/types/resolverType";
-import { User } from "../entity/User";
+import { User } from "./../../entity/User";
 import bcrypt from "bcrypt";
 import { AuthenticationError, UserInputError } from "apollo-server";
 import * as dotenv from "dotenv";
@@ -8,7 +7,7 @@ import jwt from "jsonwebtoken";
 import { Not } from "typeorm";
 dotenv.config()
 
-const resolvers: ResolverMap = {
+const users: ResolverMap = {
     Query: {
         getUsers: async (_, __, { user }) => {
             if (!user) throw new AuthenticationError("User not Authorized")
@@ -74,19 +73,7 @@ const resolvers: ResolverMap = {
             const user = await User.create({ username, email, password }).save()
             return user
         },
-        sendMessage: async (parent, { to, content }, { user }) => {
-            if (!user) throw new AuthenticationError("User not Authorized")
-            const recipient = await User.findOne({ where: { username: to } })
-            if (!recipient) throw new UserInputError("User not found")
-            if (content.trim() === '') throw new UserInputError("Mesaage is empty")
-
-            const message = await Message.create({ content, from: user.username, to }).save()
-            return {
-                ...message,
-                createdAt: message.createdAt.toISOString()
-            }
-        }
     }
 };
 
-export default resolvers
+export default users
