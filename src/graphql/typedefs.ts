@@ -17,6 +17,7 @@ const typeDefs = gql`
   type Query {
     getUsers: [User]!
     login(username: String! password: String!): User!
+    getMessages(from: String!): [Message]!  
   }
   type Mutation {
     register(username: String! email:String! password: String! confirmPassword: String!):User!
